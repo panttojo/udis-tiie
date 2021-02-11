@@ -77,7 +77,12 @@ class BanxicoClient(object):
 
         for item in udis_prices_data:
             date = item["fecha"]
-            usd_price = next(_usd_price for _usd_price in usd_prices_data if _usd_price["fecha"] == date)
+
+            try:
+                usd_price = next(_usd_price for _usd_price in usd_prices_data if _usd_price["fecha"] == date)
+            except Exception:
+                continue
+
             usd_price = Decimal(usd_price["dato"])
             mxn_price = Decimal(item["dato"])
 
