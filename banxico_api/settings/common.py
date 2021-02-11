@@ -25,8 +25,11 @@ INSTALLED_APPS = (
     "django.contrib.staticfiles",
     "django.contrib.admin",
     # "django.contrib.humanize",  # Useful template tags
+
     "apps.base",
     "apps.users",
+    "apps.banxico",
+
     "rest_framework",  # http://www.django-rest-framework.org/
     "rest_framework_swagger",
     "versatileimagefield",  # https://github.com/WGBH/django-versatileimagefield/
@@ -37,6 +40,7 @@ INSTALLED_APPS = (
 
 # INSTALLED APPS CONFIGURATION
 # ==========================================================================
+SIE_TOKEN = env("SIE_TOKEN", default="")
 
 # django.contrib.auth
 # ------------------------------------------------------------------------------
@@ -174,10 +178,10 @@ USE_TZ = True
 
 # Language code for this installation. All choices can be found here:
 # http://www.i18nguy.com/unicode/language-identifiers.html
-LANGUAGE_CODE = "en-us"
+LANGUAGE_CODE = "es-es"
 
 # Languages we provide translations for
-LANGUAGES = (("en", _("English")),)
+LANGUAGES = (("es", _("Spanish")),)
 
 if USE_TZ:
     # Add timezone information to datetime displayed.
