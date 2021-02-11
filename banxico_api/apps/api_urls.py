@@ -16,7 +16,7 @@ default_router.register("auth", AuthViewSet, basename="auth")
 singleton_router.register("me", CurrentUserViewSet, basename="me")
 
 urlpatterns = [
-    path('banxico_data', ListUdisView.as_view(), name='banxico_data'),
+    path('udis', ListUdisView.as_view(), name='udis'),
 ]
 
 # Combine urls from both default and singleton routers and expose as

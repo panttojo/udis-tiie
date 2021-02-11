@@ -17,7 +17,7 @@ class ListUdisView(APIView):
         serializer.is_valid(raise_exception=True)
 
         client = BanxicoClient()
-        udis = client.get_data(**serializer.validated_data)
+        udis = client.get_udis_data(**serializer.validated_data)
 
         if not udis:
             return NotFound()
