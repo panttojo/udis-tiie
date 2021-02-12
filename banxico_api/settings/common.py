@@ -32,7 +32,6 @@ INSTALLED_APPS = (
 
     "rest_framework",  # http://www.django-rest-framework.org/
     "rest_framework_swagger",
-    "versatileimagefield",  # https://github.com/WGBH/django-versatileimagefield/
     "corsheaders",  # https://github.com/ottoyiu/django-cors-headers/
     "mail_templated",  # https://github.com/artemrizhov/django-mail-templated
     "django_extensions",  # http://django-extensions.readthedocs.org/

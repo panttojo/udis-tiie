@@ -13,6 +13,7 @@ from .common import *  # noqa F405
 from .common import (
     DATABASES,
     INSTALLED_APPS,
+    MIDDLEWARE,
     REST_FRAMEWORK,
     TEMPLATES,
     env,
@@ -41,6 +42,14 @@ MANAGERS = ADMINS
 # CORS
 # --------------------------------------------------------------------------
 CORS_ALLOWED_ORIGINS = env.list("CORS_ALLOWED_ORIGINS")
+
+# WHITENOISE
+# --------------------------------------------------------------------------
+MIDDLEWARE += [
+    'whitenoise.middleware.WhiteNoiseMiddleware',
+]
+
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 
 # If your Django app is behind a proxy that sets a header to specify secure
@@ -115,21 +124,21 @@ DATABASES["default"].update(env.db("DATABASE_URL"))  # Don't override all db set
 # CACHING
 # ------------------------------------------------------------------------------
 # Note: Specify different redis database name, if same redis instance is used.
-CACHES = {
-    "default": {
-        "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": env("REDIS_URL", default="redis://localhost:6379/0"),
-        "OPTIONS": {
-            "CLIENT_CLASS": "django_redis.client.DefaultClient",
-            "PARSER_CLASS": "redis.connection.HiredisParser",
-            "CONNECTION_POOL_CLASS": "redis.BlockingConnectionPool",
-            "CONNECTION_POOL_CLASS_KWARGS": {
-                "max_connections": env.int("REDIS_MAX_CONNECTIONS", default=10),
-                "timeout": 20,
-            },
-        },
-    }
-}
+# CACHES = {
+#     "default": {
+#         "BACKEND": "django_redis.cache.RedisCache",
+#         "LOCATION": env("REDIS_URL", default="redis://localhost:6379/0"),
+#         "OPTIONS": {
+#             "CLIENT_CLASS": "django_redis.client.DefaultClient",
+#             "PARSER_CLASS": "redis.connection.HiredisParser",
+#             "CONNECTION_POOL_CLASS": "redis.BlockingConnectionPool",
+#             "CONNECTION_POOL_CLASS_KWARGS": {
+#                 "max_connections": env.int("REDIS_MAX_CONNECTIONS", default=10),
+#                 "timeout": 20,
+#             },
+#         },
+#     }
+# }
 
 # https://docs.djangoproject.com/en/1.10/topics/http/sessions/#using-cached-sessions
 SESSION_ENGINE = "django.contrib.sessions.backends.cached_db"
