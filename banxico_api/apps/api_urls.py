@@ -3,7 +3,10 @@ from django.urls import path
 from rest_framework.routers import DefaultRouter
 
 # Banxico Stuff
-from apps.banxico.api import ListUdisView
+from apps.banxico.api import (
+    ListTiieView,
+    ListUdisView,
+)
 from apps.base.api.routers import SingletonRouter
 from apps.users.api import CurrentUserViewSet
 from apps.users.auth.api import AuthViewSet
@@ -17,6 +20,7 @@ singleton_router.register("me", CurrentUserViewSet, basename="me")
 
 urlpatterns = [
     path('udis', ListUdisView.as_view(), name='udis'),
+    path('tiie', ListTiieView.as_view(), name='tiie'),
 ]
 
 # Combine urls from both default and singleton routers and expose as

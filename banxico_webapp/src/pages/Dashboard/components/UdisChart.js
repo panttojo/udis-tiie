@@ -10,14 +10,14 @@ export const UdisChart = props => {
         data
     } = props
 
-    const usd_prices = []
-    const udis_mxn_price = []
-    const udis_usd_price = []
+    const usd_values = []
+    const udis_value = []
+    const udis_usd_value = []
 
     data.forEach(item => {
-        usd_prices.push([item.timestamp, item.usd_price])
-        udis_mxn_price.push([item.timestamp, item.udis_mxn_price])
-        udis_usd_price.push([item.timestamp, item.udis_usd_price])
+        usd_values.push([item.timestamp, item.usd_value])
+        udis_value.push([item.timestamp, item.udis_value])
+        udis_usd_value.push([item.timestamp, item.udis_usd_value])
     });
 
     const options = {
@@ -31,9 +31,9 @@ export const UdisChart = props => {
             enabled: false
         },
         series: [
-            { name: "Dólar", data: usd_prices },
-            { name: "UDIS", data: udis_mxn_price },
-            { name: "UDIS en Dólar", data: udis_usd_price }
+            { name: "Dólar", data: usd_values },
+            { name: "UDIS", data: udis_value },
+            { name: "UDIS en Dólar", data: udis_usd_value }
         ],
         xAxis: {
             startOnTick: false,

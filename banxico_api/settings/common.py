@@ -36,6 +36,7 @@ INSTALLED_APPS = (
     "corsheaders",  # https://github.com/ottoyiu/django-cors-headers/
     "mail_templated",  # https://github.com/artemrizhov/django-mail-templated
     "django_extensions",  # http://django-extensions.readthedocs.org/
+    "memoize",
 )
 
 # INSTALLED APPS CONFIGURATION

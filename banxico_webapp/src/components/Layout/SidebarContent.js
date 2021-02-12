@@ -80,6 +80,12 @@ class SidebarContent extends Component {
                                 <span>Dashboard</span>
                             </Link>
                         </li>
+                        <li>
+                            <Link className="waves-effect" to="/tiie">
+                                    <i className='fa fa-chart-line'/>
+                                <span>TIIE</span>
+                            </Link>
+                        </li>
                     </ul>
                 </div>
             </React.Fragment>

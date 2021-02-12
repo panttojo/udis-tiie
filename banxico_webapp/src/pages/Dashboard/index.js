@@ -39,14 +39,7 @@ let Dashboard = props => {
     } = props
 
     const [startAt, setStartAt] = useState()
-    const [endAt, setEndAt] = useState(new Date())
-
-    useEffect(() => {
-        getAll({
-            start_at: startAt ? moment(startAt).format("YYYY-MM-DD") : null,
-            end_at: endAt ? moment(endAt).format("YYYY-MM-DD") : null
-        })
-    }, [])
+    const [endAt, setEndAt] = useState()
 
     const getUdis = () => {
         getAll({

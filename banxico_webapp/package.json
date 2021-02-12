@@ -60,6 +60,7 @@
     "react-jvectormap": "^0.0.16",
     "react-leaflet": "^2.7.0",
     "react-modal-video": "^1.2.3",
+    "react-moment": "^1.1.1",
     "react-number-format": "^4.4.4",
     "react-owl-carousel": "^2.3.3",
     "react-perfect-scrollbar": "^1.5.8",

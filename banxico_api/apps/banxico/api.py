@@ -22,3 +22,14 @@ class ListUdisView(APIView):
         if not udis:
             return NotFound()
         return Ok(udis)
+
+
+class ListTiieView(APIView):
+
+    def get(self, request):
+        client = BanxicoClient()
+        tiie = client.get_tiie_data()
+
+        if not tiie:
+            return NotFound()
+        return Ok(tiie)
