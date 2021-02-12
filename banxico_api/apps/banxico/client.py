@@ -1,6 +1,6 @@
 # Standard Library
 import json
-from decimal import Decimal
+from datetime import datetime
 from logging import getLogger
 
 # Third Party Stuff
@@ -58,19 +58,15 @@ class BanxicoClient(object):
 
         full_data = {
             "title": udis["titulo"],
-            "avg": {
-                "udis": 0,
-                "usd": 0
+            "udis": {
+                "min": float(udis_prices_data[0]["dato"]),
+                "avg": 0,
+                "max": 0,
             },
-            "max_min": {
-                "udis": {
-                    "min": Decimal(udis_prices_data[0]["dato"]),
-                    "max": 0
-                },
-                "usd": {
-                    "min": Decimal(usd_prices_data[0]["dato"]),
-                    "max": 0
-                }
+            "usd": {
+                "min": float(usd_prices_data[0]["dato"]),
+                "avg": 0,
+                "max": 0,
             },
             "data": []
         }
@@ -80,35 +76,39 @@ class BanxicoClient(object):
 
             try:
                 usd_price = next(_usd_price for _usd_price in usd_prices_data if _usd_price["fecha"] == date)
-            except Exception:
-                continue
+            except Exception as exc:
+                usd_price = None
+                log.info(exc)
 
-            usd_price = Decimal(usd_price["dato"])
-            mxn_price = Decimal(item["dato"])
+            mxn_price = float(item["dato"])
+            usd_price = float(usd_price["dato"]) if usd_price else None
 
-            full_data["avg"]["udis"] += mxn_price
-            full_data["avg"]["usd"] += usd_price
+            full_data["udis"]["avg"] += mxn_price
 
             # Get max and min usd price
-            if usd_price > full_data["max_min"]["usd"]["max"]:
-                full_data["max_min"]["usd"]["max"] = usd_price
-            if usd_price < full_data["max_min"]["usd"]["min"]:
-                full_data["max_min"]["usd"]["min"] = usd_price
+            if usd_price is not None:
+                full_data["usd"]["avg"] += usd_price
+                if usd_price > full_data["usd"]["max"]:
+                    full_data["usd"]["max"] = usd_price
+                if usd_price < full_data["usd"]["min"]:
+                    full_data["usd"]["min"] = usd_price
 
             # Get max and min udis price
-            if mxn_price > full_data["max_min"]["udis"]["max"]:
-                full_data["max_min"]["udis"]["max"] = mxn_price
-            if mxn_price < full_data["max_min"]["udis"]["min"]:
-                full_data["max_min"]["udis"]["min"] = mxn_price
+            if mxn_price > full_data["udis"]["max"]:
+                full_data["udis"]["max"] = mxn_price
+            if mxn_price < full_data["udis"]["min"]:
+                full_data["udis"]["min"] = mxn_price
+
+            date_timestamp = datetime.strptime(item["fecha"], "%d/%m/%Y").timestamp() * 1000
 
             full_data["data"].append({
-                "date": item["fecha"],
+                "timestamp": date_timestamp,
                 "udis_mxn_price": mxn_price,
-                "udis_usd_price": mxn_price * usd_price,
+                "udis_usd_price": round(mxn_price / usd_price, 4) if usd_price is not None else usd_price,
                 "usd_price": usd_price
             })
 
-        full_data["avg"]["udis"] /= len(udis_prices_data)
-        full_data["avg"]["usd"] /= len(usd_prices_data)
+        full_data["udis"]["avg"] /= len(udis_prices_data)
+        full_data["usd"]["avg"] /= len(usd_prices_data)
 
         return full_data
