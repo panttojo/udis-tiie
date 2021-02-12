@@ -45,7 +45,6 @@ let Login = props => {
     const totalErrors = Object.keys(errors).length + err.totalErrors
 
     useEffect(() => {
-        console.log(auth_token);
         if (auth_token) {
             history.push("/dashboard")
         }
