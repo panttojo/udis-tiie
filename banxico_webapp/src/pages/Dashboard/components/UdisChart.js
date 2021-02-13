@@ -15,9 +15,9 @@ export const UdisChart = props => {
     const udis_usd_value = []
 
     data.forEach(item => {
-        usd_values.push([item.timestamp, item.usd_value])
-        udis_value.push([item.timestamp, item.udis_value])
-        udis_usd_value.push([item.timestamp, item.udis_usd_value])
+        usd_values.push([item.timestamp, item.usd])
+        udis_value.push([item.timestamp, item.udis])
+        udis_usd_value.push([item.timestamp, item.udis_usd])
     });
 
     const options = {
