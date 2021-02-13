@@ -4,6 +4,8 @@ from datetime import datetime
 from logging import getLogger
 
 # Third Party Stuff
+import numpy as np
+import pandas as pd
 import requests
 from django.conf import settings
 from memoize import memoize
@@ -12,9 +14,10 @@ log = getLogger(__name__)
 
 
 class BanxicoClient(object):
-    BASE_URL = 'https://www.banxico.org.mx/SieAPIRest/service/v1/series'
+    BASE_URL = "https://www.banxico.org.mx/SieAPIRest/service/v1/series"
     API_KEY = settings.SIE_TOKEN
     session = None
+    TZ_BANXICO = "America/Mexico_city"
 
     UDIS_KEY = "SP68257"
     USD_KEY = "SF63528"
@@ -28,17 +31,17 @@ class BanxicoClient(object):
     def __init__(self):
         self.session = requests.Session()
         self.session.headers.update({
-            'Accept': 'application/json',
-            'User-Agent': 'binance/python',
-            'Bmx-Token': self.API_KEY
+            "Accept": "application/json",
+            "User-Agent": "binance/python",
+            "Bmx-Token": self.API_KEY
         })
 
     def get(self, endpoint: str, **kwargs) -> bytes:
-        return self.request('get', endpoint, {}, **kwargs)
+        return self.request("get", endpoint, {}, **kwargs)
 
     def post(self, endpoint: str, data: dict, **kwargs) -> bytes:
         data = {**self.base_data, **data}
-        return self.request('post', endpoint, data, **kwargs)
+        return self.request("post", endpoint, data, **kwargs)
 
     def request(self, method: str, endpoint: str, data: dict, **kwargs) -> bytes:
         url = "{}{}".format(self.BASE_URL, endpoint)
@@ -64,60 +67,36 @@ class BanxicoClient(object):
         udis_values_data = udis["datos"]
         usd_values_data = usd_values["datos"]
 
+        df_udis = pd.DataFrame(udis_values_data)
+        df_usd = pd.DataFrame(usd_values_data)
+
+        df = df_udis.merge(df_usd, how="left", on="fecha").rename(
+            columns={"fecha": "timestamp", "dato_x": "udis", "dato_y": "usd"}
+        )
+
+        df["timestamp"] = pd.to_datetime(df["timestamp"]).dt.tz_localize("utc").dt.tz_convert(self.TZ_BANXICO)
+        df["timestamp"] = df.timestamp.values.astype(np.int64)
+        df["timestamp"] = df["timestamp"] / 10000000
+
+        df = df.astype({"timestamp": int, "udis": float, "usd": float})
+
+        df["udis_usd"] = df["udis"] / df["usd"]
+        df = df.where(df.notnull(), None)
+
         payload = {
             "title": udis["titulo"],
             "udis": {
-                "min": float(udis_values_data[0]["dato"]),
-                "avg": 0,
-                "max": 0,
+                "min": df["udis"].min(),
+                "avg": df["udis"].mean(),
+                "max": df["udis"].max(),
             },
             "usd": {
-                "min": float(usd_values_data[0]["dato"]),
-                "avg": 0,
-                "max": 0,
+                "min": df["usd"].min(),
+                "avg": df["usd"].mean(),
+                "max": df["usd"].max(),
             },
-            "data": []
+            "data": json.loads(df.to_json(orient="records"))
         }
-
-        for item in udis_values_data:
-            date = item["fecha"]
-
-            try:
-                usd_value = next(_usd_value for _usd_value in usd_values_data if _usd_value["fecha"] == date)
-            except Exception as exc:
-                usd_value = None
-                log.info(exc)
-
-            udis_value = float(item["dato"])
-            usd_value = float(usd_value["dato"]) if usd_value else None
-
-            payload["udis"]["avg"] += udis_value
-
-            # Get max and min usd value
-            if usd_value is not None:
-                payload["usd"]["avg"] += usd_value
-                if usd_value > payload["usd"]["max"]:
-                    payload["usd"]["max"] = usd_value
-                if usd_value < payload["usd"]["min"]:
-                    payload["usd"]["min"] = usd_value
-
-            # Get max and min udis value
-            if udis_value > payload["udis"]["max"]:
-                payload["udis"]["max"] = udis_value
-            if udis_value < payload["udis"]["min"]:
-                payload["udis"]["min"] = udis_value
-
-            date_timestamp = datetime.strptime(item["fecha"], "%d/%m/%Y").timestamp() * 1000
-
-            payload["data"].append({
-                "timestamp": date_timestamp,
-                "udis_value": udis_value,
-                "udis_usd_value": round(udis_value / usd_value, 4) if usd_value is not None else usd_value,
-                "usd_value": usd_value
-            })
-
-        payload["udis"]["avg"] /= len(udis_values_data)
-        payload["usd"]["avg"] /= len(usd_values_data)
 
         return payload
 
